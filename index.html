@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="K-water 수자원 자동화 — dam-operations MCP 운영 레이어 20 도구(치수·이수·개발) + 물리 엔진 6서버 82 도구 아키텍처. Qwen 오케스트레이션, 엔진은 전부 결정론(AI 0).">
+<meta property="og:title" content="dam-operations · 운영 레이어 + 엔진 6서버">
+<meta property="og:description" content="운영 레이어 20 도구 + 엔진 6서버 82 도구. 한국어 기능명으로 부르면 물리 엔진이 결정론으로 실행.">
+<meta property="og:type" content="website">
 <title>dam-operations · 운영 레이어 + 엔진 6서버</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -21,11 +25,11 @@
 
   .seclead { display:flex; align-items:center; gap:10px; margin:6px 2px 12px; }
   .seclead .t { font-size:14px; font-weight:800; color:#0f172a; }
-  .seclead .d { font-size:12px; color:#94a3b8; }
+  .seclead .d { font-size:12px; color:#64748b; }
   .seclead .line { flex:1; height:1px; background:#e2e8f0; }
 
   .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
-  @media (max-width:900px){ .grid{ grid-template-columns:1fr; } .chrow,.inrow,.gis .tiergrid{ flex-direction:column; } .ea{ transform:rotate(90deg); } }
+  @media (max-width:900px){ .grid{ grid-template-columns:1fr; } .chrow,.inrow,.gis .tiergrid{ flex-direction:column; } .ea .ar{ display:inline-block; transform:rotate(90deg); } }
   .card { background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 4px 16px rgba(15,23,42,.08); }
   .chead { padding:14px 17px; color:#fff; display:flex; align-items:center; justify-content:space-between; }
   .chead .nm { font-size:19px; font-weight:800; }
@@ -40,13 +44,13 @@
   .slabel .tag { padding:2px 8px; border-radius:6px; font-size:10.5px; }
   .tool { padding:7px 11px; border-radius:10px; margin-bottom:6px; }
   .tool .kname { font-size:14px; font-weight:700; }
-  .tool .ename { font-family:"Consolas",monospace; font-size:10.5px; color:#94a3b8; margin-top:1px; }
+  .tool .ename { font-family:"Consolas",monospace; font-size:10.5px; color:#64748b; margin-top:1px; }
   .tool .desc { color:#64748b; font-size:11px; margin-top:3px; line-height:1.35; }
   .qgrid { display:flex; flex-wrap:wrap; gap:6px; }
   .pill { border-radius:9px; padding:5px 9px; line-height:1.25; }
   .pill .pk { font-size:12px; font-weight:600; display:block; }
   .pill .pe { font-family:"Consolas",monospace; font-size:9px; opacity:.7; display:block; }
-  .chain { font-size:11px; color:#94a3b8; margin:7px 2px 2px; font-family:"Consolas",monospace; }
+  .chain { font-size:11px; color:#64748b; margin:7px 2px 2px; font-family:"Consolas",monospace; }
 
   .c1 .chead{background:linear-gradient(135deg,#ef4444,#dc2626);} .c1 .tag{background:#fee2e2;color:#b91c1c;}
   .c1 .tool{background:#fef2f2;} .c1 .kname{color:#991b1b;} .c1 .pill{background:#fef2f2;color:#991b1b;}
@@ -59,7 +63,7 @@
   .ecard { border-radius:14px; padding:13px 16px; box-shadow:0 3px 12px rgba(15,23,42,.06); background:#fff; border:1px solid #e2e8f0; }
   .ecard .etop { display:flex; align-items:center; justify-content:space-between; margin-bottom:2px; }
   .ecard .erole { font-size:10.5px; font-weight:800; letter-spacing:.4px; padding:2px 9px; border-radius:6px; }
-  .ecard .ecnt { font-family:"Consolas",monospace; font-size:11px; color:#94a3b8; font-weight:700; }
+  .ecard .ecnt { font-family:"Consolas",monospace; font-size:11px; color:#64748b; font-weight:700; }
   .ecard .ename { font-size:16px; font-weight:800; color:#0f172a; }
   .ecard .ename .mono { font-family:"Consolas",monospace; font-size:12px; color:#0369a1; font-weight:600; margin-left:5px; }
   .ecard .edesc { font-size:12px; color:#475569; margin-top:5px; line-height:1.5; }
@@ -93,9 +97,8 @@
   .inrow { display:flex; gap:14px; margin-top:11px; }
   .inrow .ecard{ flex:1; }
 
-  footer{ text-align:center; color:#94a3b8; font-size:11.5px; margin-top:20px; line-height:1.9; }
-  footer .ren .old{color:#b91c1c; text-decoration:line-through; opacity:.6;}
-  footer .ren .new{color:#15803d; font-weight:700;}
+  footer{ text-align:center; color:#64748b; font-size:11.5px; margin-top:20px; line-height:1.9; }
+  footer a{ color:inherit; }
 </style>
 </head>
 <body>
@@ -107,7 +110,7 @@
   </header>
 
   <!-- 운영 레이어 -->
-  <div class="seclead"><span class="t">운영 레이어 · 20 도구</span><span class="d">3 영역 × (분석 + 조회) — Qwen 주 진입점</span><span class="line"></span></div>
+  <div class="seclead"><h2 class="t">운영 레이어 · 20 도구</h2><span class="d">3 영역 × (분석 + 조회) — Qwen 주 진입점</span><span class="line"></span></div>
 
   <div class="grid">
 
@@ -163,7 +166,7 @@
   </div>
 
   <!-- 엔진층 : 6 서버 하나하나 -->
-  <div class="seclead" style="margin-top:22px"><span class="t">엔진층 · 6 서버 82 도구</span><span class="d">운영 도구가 내부에서 조립 — Qwen 안 거침 · 전부 결정론(AI 0)</span><span class="line"></span></div>
+  <div class="seclead" style="margin-top:22px"><h2 class="t">엔진층 · 6 서버 82 도구</h2><span class="d">운영 도구가 내부에서 조립 — Qwen 안 거침 · 전부 결정론(AI 0)</span><span class="line"></span></div>
 
   <!-- 1. GIS (상류) -->
   <div class="ecard gis">
@@ -178,10 +181,10 @@
       </div>
       <div class="tier gl">
         <div class="th">🌐 글로벌 · 무계측·해외 (T0)</div>
-        <div class="tb"><b>DEM</b> SRTM ~30 m (또는 Copernicus)<br><b>CN</b> GCN250 — HWSD 기반 글로벌 CN 래스터(인증 불필요), 그대로 사용</div>
+        <div class="tb"><b>DEM</b> SRTM ~30 m (또는 Copernicus)<br><b>CN</b> GCN250 — 글로벌 수문토양그룹(HYSOGs250m)+토지피복 기반 CN 래스터(인증 불필요), 그대로 사용</div>
       </div>
     </div>
-    <div class="gkey">글로벌 자료(GCN250)만으로 합천 <b>NSE 0.779</b> — 한국 정밀자료(<b>0.740</b>) 능가 입증 → <b>무계측·해외 즉시 적용</b> (글로벌 우선 설계의 핵심).</div>
+    <div class="gkey">글로벌 자료(GCN250)만으로 합천 <b>NSE 0.779</b> — 한국 정밀자료(<b>0.772</b>)와 대등(+0.006), 정밀자료 없이 동급 → <b>무계측·해외 즉시 적용</b> (글로벌 우선 설계의 핵심).</div>
   </div>
 
   <div class="connect">▼ &nbsp;유역·CN·제원을 모델 체인에 공급</div>
@@ -193,13 +196,13 @@
       <div class="ename">유역 유출 <span class="mono">dam-hms</span></div>
       <div class="edesc">유역에 내린 비가 하천으로 얼마나·언제 흘러나오는지(유입 수문곡선). HEC-HMS · SCS-CN 손실 + Clark 단위도.</div>
     </div>
-    <div class="ea">→<span class="eatag">유출</span></div>
+    <div class="ea"><span class="ar">→</span><span class="eatag">유출</span></div>
     <div class="ecard model">
       <div class="etop"><span class="erole">③ 저수지 운영</span><span class="ecnt">8 도구</span></div>
       <div class="ename">방류·물수지 <span class="mono">dam-reservoir</span></div>
       <div class="edesc">유입을 받아 방류룰로 방류량·저수위를 정하고, 장기 물수지로 용수공급능력(firm yield)까지. 홍수기·갈수기 공용.</div>
     </div>
-    <div class="ea">→<span class="eatag">방류</span></div>
+    <div class="ea"><span class="ar">→</span><span class="eatag">방류</span></div>
     <div class="ecard model">
       <div class="etop"><span class="erole">④ 하천 수리</span><span class="ecnt">10 도구</span></div>
       <div class="ename">하류 수위·범람 <span class="mono">dam-ras</span></div>
@@ -222,8 +225,8 @@
   </div>
 
   <footer>
-    <span class="ren"><span class="old">작전 1/2/3</span> → <span class="new">영역</span> · <span class="old">무기</span> → <span class="new">도구</span> · 영문 함수명은 실제 호출명(보조 표기)</span><br>
-    dam-operations · 2026-06 · https://eum-jium.github.io/dam-operations-map
+    한국어가 기능명 · 영문은 실제 호출명(보조 표기) · 운영 레이어 위에서 Qwen 오케스트레이션 · 엔진은 전부 결정론(AI 0)<br>
+    dam-operations · 2026-06 · https://eum-jium.github.io/dam-operations-map/
   </footer>
 
 </div>
