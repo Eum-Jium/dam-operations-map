@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dam-operations · 운영 레이어 + 엔진 6서버</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:"Pretendard","Malgun Gothic","Segoe UI",system-ui,sans-serif;
+    background:linear-gradient(160deg,#f8fafc 0%,#e9eef5 100%);
+    color:#0f172a; padding:30px 28px 36px;
+  }
+  .wrap { max-width:1220px; margin:0 auto; }
+
+  header { margin-bottom:18px; }
+  h1 { font-size:25px; font-weight:800; letter-spacing:-.4px; }
+  h1 .mono { font-family:"Consolas",monospace; color:#1d4ed8; }
+  .sub { color:#64748b; font-size:13.5px; margin-top:6px; }
+  .sub b { color:#334155; }
+
+  .seclead { display:flex; align-items:center; gap:10px; margin:6px 2px 12px; }
+  .seclead .t { font-size:14px; font-weight:800; color:#0f172a; }
+  .seclead .d { font-size:12px; color:#94a3b8; }
+  .seclead .line { flex:1; height:1px; background:#e2e8f0; }
+
+  .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  @media (max-width:900px){ .grid{ grid-template-columns:1fr; } .chrow,.inrow,.gis .tiergrid{ flex-direction:column; } .ea{ transform:rotate(90deg); } }
+  .card { background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 4px 16px rgba(15,23,42,.08); }
+  .chead { padding:14px 17px; color:#fff; display:flex; align-items:center; justify-content:space-between; }
+  .chead .nm { font-size:19px; font-weight:800; }
+  .chead .nm small { font-weight:500; opacity:.88; font-size:12.5px; margin-left:4px; }
+  .chead .r { text-align:right; }
+  .chead .folder { font-family:"Consolas",monospace; font-size:12px; opacity:.92; }
+  .cnt { display:inline-block; background:rgba(255,255,255,.24); border-radius:20px; padding:2px 11px; font-size:12.5px; font-weight:700; margin-top:3px; }
+  .cbody { padding:14px 16px 16px; }
+
+  .slabel { font-size:11px; font-weight:800; letter-spacing:.4px; margin:0 0 8px; display:flex; align-items:center; gap:7px; color:#475569; }
+  .slabel.q { margin-top:15px; }
+  .slabel .tag { padding:2px 8px; border-radius:6px; font-size:10.5px; }
+  .tool { padding:7px 11px; border-radius:10px; margin-bottom:6px; }
+  .tool .kname { font-size:14px; font-weight:700; }
+  .tool .ename { font-family:"Consolas",monospace; font-size:10.5px; color:#94a3b8; margin-top:1px; }
+  .tool .desc { color:#64748b; font-size:11px; margin-top:3px; line-height:1.35; }
+  .qgrid { display:flex; flex-wrap:wrap; gap:6px; }
+  .pill { border-radius:9px; padding:5px 9px; line-height:1.25; }
+  .pill .pk { font-size:12px; font-weight:600; display:block; }
+  .pill .pe { font-family:"Consolas",monospace; font-size:9px; opacity:.7; display:block; }
+  .chain { font-size:11px; color:#94a3b8; margin:7px 2px 2px; font-family:"Consolas",monospace; }
+
+  .c1 .chead{background:linear-gradient(135deg,#ef4444,#dc2626);} .c1 .tag{background:#fee2e2;color:#b91c1c;}
+  .c1 .tool{background:#fef2f2;} .c1 .kname{color:#991b1b;} .c1 .pill{background:#fef2f2;color:#991b1b;}
+  .c2 .chead{background:linear-gradient(135deg,#f59e0b,#d97706);} .c2 .tag{background:#fef3c7;color:#b45309;}
+  .c2 .tool{background:#fffbeb;} .c2 .kname{color:#92400e;} .c2 .pill{background:#fffbeb;color:#92400e;}
+  .c3 .chead{background:linear-gradient(135deg,#22c55e,#16a34a);} .c3 .tag{background:#dcfce7;color:#15803d;}
+  .c3 .tool{background:#f0fdf4;} .c3 .kname{color:#166534;}
+
+  /* 엔진층 — 6 서버 각각 설명 */
+  .ecard { border-radius:14px; padding:13px 16px; box-shadow:0 3px 12px rgba(15,23,42,.06); background:#fff; border:1px solid #e2e8f0; }
+  .ecard .etop { display:flex; align-items:center; justify-content:space-between; margin-bottom:2px; }
+  .ecard .erole { font-size:10.5px; font-weight:800; letter-spacing:.4px; padding:2px 9px; border-radius:6px; }
+  .ecard .ecnt { font-family:"Consolas",monospace; font-size:11px; color:#94a3b8; font-weight:700; }
+  .ecard .ename { font-size:16px; font-weight:800; color:#0f172a; }
+  .ecard .ename .mono { font-family:"Consolas",monospace; font-size:12px; color:#0369a1; font-weight:600; margin-left:5px; }
+  .ecard .edesc { font-size:12px; color:#475569; margin-top:5px; line-height:1.5; }
+
+  .gis { background:linear-gradient(160deg,#f0fdf4,#dcfce7); border:2px solid #16a34a; box-shadow:0 4px 18px rgba(22,163,74,.16); }
+  .gis .erole { background:#16a34a; color:#fff; }
+  .gis .ename, .gis .ename .mono { color:#14532d; }
+  .gis .gflow { margin:8px 0 2px; font-size:12.5px; font-weight:700; color:#166534; }
+  .gis .gflow span{ background:#fff; border:1px solid #86efac; border-radius:7px; padding:2px 9px; display:inline-block; margin:2px 4px 2px 0; }
+  .gis .edesc { color:#15803d; }
+  .gis .edesc b{ color:#14532d; }
+  .gis .tiergrid { display:flex; gap:9px; margin:9px 0 8px; }
+  .gis .tier { flex:1; background:#fff; border:1px solid #bbf7d0; border-radius:9px; padding:8px 11px; }
+  .gis .tier.gl { border-color:#bfdbfe; background:#f3f8ff; }
+  .gis .tier .th { font-size:11px; font-weight:800; color:#15803d; margin-bottom:4px; }
+  .gis .tier.gl .th { color:#1d4ed8; }
+  .gis .tier .tb { font-size:11px; color:#334155; line-height:1.5; }
+  .gis .tier .tb b { color:#0f172a; }
+  .gis .gkey { font-size:11.5px; color:#15803d; line-height:1.5; border-top:1px dashed #86efac; padding-top:8px; }
+  .gis .gkey b { color:#14532d; }
+
+  .connect { text-align:center; color:#16a34a; font-size:12px; font-weight:700; margin:10px 0; }
+  .model .erole{ background:#e0f2fe; color:#0369a1; } .model{ border-color:#7dd3fc; background:#f8fcff; }
+  .obs .erole{ background:#e0f2fe; color:#0369a1; } .obs{ border-color:#bae6fd; }
+  .kn .erole{ background:#ede9fe; color:#6d28d9; } .kn{ border-color:#ddd6fe; }
+
+  .chrow { display:flex; align-items:stretch; gap:9px; }
+  .chrow .ecard{ flex:1; }
+  .ea { align-self:center; color:#0891b2; font-size:20px; font-weight:700; }
+  .eatag { display:block; font-size:9px; color:#0891b2; text-align:center; font-weight:700; margin-top:-2px; }
+  .inrow { display:flex; gap:14px; margin-top:11px; }
+  .inrow .ecard{ flex:1; }
+
+  footer{ text-align:center; color:#94a3b8; font-size:11.5px; margin-top:20px; line-height:1.9; }
+  footer .ren .old{color:#b91c1c; text-decoration:line-through; opacity:.6;}
+  footer .ren .new{color:#15803d; font-weight:700;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1><span class="mono">dam-operations</span> — 운영 레이어 20 도구 &nbsp;+&nbsp; 엔진 6서버</h1>
+    <div class="sub">Qwen이 부르는 <b>운영 도구</b>(한국어 기능명) · 그 아래 <b>물리 엔진 6서버</b>가 결정론으로 실행 · 전부 AI 0 · 합천 검증 PASS</div>
+  </header>
+
+  <!-- 운영 레이어 -->
+  <div class="seclead"><span class="t">운영 레이어 · 20 도구</span><span class="d">3 영역 × (분석 + 조회) — Qwen 주 진입점</span><span class="line"></span></div>
+
+  <div class="grid">
+
+    <div class="card c1">
+      <div class="chead"><div class="nm">치수 <small>治水 · 홍수 운영</small></div><div class="r"><div class="folder">flood/</div><div class="cnt">9 도구</div></div></div>
+      <div class="cbody">
+        <div class="slabel"><span class="tag">분석</span> 판정 · 비교</div>
+        <div class="tool"><div class="kname">댐 홍수위험 종합판정</div><div class="ename">assess_dam_risk</div><div class="desc">관측 → 강우-유출 → 저수지 → 하천 풀체인</div></div>
+        <div class="tool"><div class="kname">운영 시나리오 비교</div><div class="ename">compare_dam_operations</div></div>
+        <div class="slabel q"><span class="tag">조회</span> 단건 사실 · 7</div>
+        <div class="qgrid">
+          <span class="pill"><span class="pk">유입량</span><span class="pe">query_inflow</span></span>
+          <span class="pill"><span class="pk">방류량</span><span class="pe">query_release</span></span>
+          <span class="pill"><span class="pk">저수위</span><span class="pe">query_waterlevel</span></span>
+          <span class="pill"><span class="pk">저수율</span><span class="pe">query_storage_rate</span></span>
+          <span class="pill"><span class="pk">유역 강우량</span><span class="pe">query_rainfall</span></span>
+          <span class="pill"><span class="pk">관측소별 강우분포</span><span class="pe">query_rainfall_spatial</span></span>
+          <span class="pill"><span class="pk">강우 도달시간</span><span class="pe">query_travel_time</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card c2">
+      <div class="chead"><div class="nm">이수 <small>利水 · 용수·가뭄</small></div><div class="r"><div class="folder">watersupply/</div><div class="cnt">6 도구</div></div></div>
+      <div class="cbody">
+        <div class="slabel"><span class="tag">분석</span> 진단 · 모의운영</div>
+        <div class="tool"><div class="kname">가뭄단계 진단</div><div class="ename">assess_drought_stage</div><div class="desc">용수공급조정기준 곡선 대비 단계</div></div>
+        <div class="tool"><div class="kname">가뭄 모의운영·전망</div><div class="ename">simulate_drought_outlook</div><div class="desc">미래 저수량 추적 · 심각도달 일수</div></div>
+        <div class="slabel q"><span class="tag">조회</span> 단건 사실 · 4</div>
+        <div class="qgrid">
+          <span class="pill"><span class="pk">가뭄단계 빠른조회</span><span class="pe">query_drought_stage</span></span>
+          <span class="pill"><span class="pk">평년대비 저수량</span><span class="pe">query_storage_vs_normal</span></span>
+          <span class="pill"><span class="pk">과거 가뭄이력</span><span class="pe">query_drought_history</span></span>
+          <span class="pill"><span class="pk">가뭄단계 기준곡선</span><span class="pe">get_drought_criteria</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card c3">
+      <div class="chead"><div class="nm">개발 <small>計劃 · 설계·기획</small></div><div class="r"><div class="folder">planning/</div><div class="cnt">5 도구</div></div></div>
+      <div class="cbody">
+        <div class="slabel"><span class="tag">분석</span> 설계 체인 · 치수 4</div>
+        <div class="tool"><div class="kname">수문빈도분석</div><div class="ename">frequency_analysis</div></div>
+        <div class="tool"><div class="kname">설계강우 산정</div><div class="ename">design_storm</div></div>
+        <div class="tool"><div class="kname">설계홍수량 산정</div><div class="ename">design_flood</div></div>
+        <div class="tool"><div class="kname">저수지 홍수조절효과</div><div class="ename">flood_control_effect · 항사</div></div>
+        <div class="chain">빈도 → 설계강우 → 설계홍수 → 홍수조절</div>
+        <div class="slabel q"><span class="tag">분석</span> 이수 설계 · 이수 1</div>
+        <div class="tool"><div class="kname">용수공급능력 · 이수안전도</div><div class="ename">water_supply_capacity · 아미천</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 엔진층 : 6 서버 하나하나 -->
+  <div class="seclead" style="margin-top:22px"><span class="t">엔진층 · 6 서버 ~83 도구</span><span class="d">운영 도구가 내부에서 조립 — Qwen 안 거침 · 전부 결정론(AI 0)</span><span class="line"></span></div>
+
+  <!-- 1. GIS (상류) -->
+  <div class="ecard gis">
+    <div class="etop"><span class="erole">① 지형공간 · GIS (상류 엔진)</span><span class="ecnt">29 도구</span></div>
+    <div class="ename">유역·하천·CN·제원 합성 <span class="mono">dam-preprocessing</span></div>
+    <div class="gflow"><span>DEM</span>→<span>흐름</span>→<span>하천</span>→<span>유역 추출</span>→<span>CN 래스터</span>→<span>댐 제원</span></div>
+    <div class="edesc"><b>DEM(수치표고)</b>에서 흐름·하천·유역을 추출(D8 · WhiteboxTools — 자료 무관 동일)한 뒤, 거기에 <b>CN(유출 곡선번호)</b>을 입혀 강우-유출 모델의 입력을 만든다. 토양·토지피복 자료는 한국/세계가 다르다:</div>
+    <div class="tiergrid">
+      <div class="tier kr">
+        <div class="th">🇰🇷 한국 · 정밀 (T1)</div>
+        <div class="tb"><b>DEM</b> 국내 10 m 정밀<br><b>CN</b> 정밀토양도(농진청)→HSG + 토지피복도(환경부 EGIS) → SCS-CN 산출</div>
+      </div>
+      <div class="tier gl">
+        <div class="th">🌐 글로벌 · 무계측·해외 (T0)</div>
+        <div class="tb"><b>DEM</b> SRTM ~30 m (또는 Copernicus)<br><b>CN</b> GCN250 — HWSD 기반 글로벌 CN 래스터(인증 불필요), 그대로 사용</div>
+      </div>
+    </div>
+    <div class="gkey">글로벌 자료(GCN250)만으로 합천 <b>NSE 0.779</b> — 한국 정밀자료(<b>0.740</b>) 능가 입증 → <b>무계측·해외 즉시 적용</b> (글로벌 우선 설계의 핵심).</div>
+  </div>
+
+  <div class="connect">▼ &nbsp;유역·CN·제원을 모델 체인에 공급</div>
+
+  <!-- 2~4. 물리 모델 체인 -->
+  <div class="chrow">
+    <div class="ecard model">
+      <div class="etop"><span class="erole">② 강우-유출</span><span class="ecnt">11 도구</span></div>
+      <div class="ename">유역 유출 <span class="mono">dam-hms</span></div>
+      <div class="edesc">유역에 내린 비가 하천으로 얼마나·언제 흘러나오는지(유입 수문곡선). HEC-HMS · SCS-CN 손실 + Clark 단위도.</div>
+    </div>
+    <div class="ea">→<span class="eatag">유출</span></div>
+    <div class="ecard model">
+      <div class="etop"><span class="erole">③ 저수지 운영</span><span class="ecnt">8 도구</span></div>
+      <div class="ename">방류·물수지 <span class="mono">dam-reservoir</span></div>
+      <div class="edesc">유입을 받아 방류룰로 방류량·저수위를 정하고, 장기 물수지로 용수공급능력(firm yield)까지. 홍수기·갈수기 공용.</div>
+    </div>
+    <div class="ea">→<span class="eatag">방류</span></div>
+    <div class="ecard model">
+      <div class="etop"><span class="erole">④ 하천 수리</span><span class="ecnt">10 도구</span></div>
+      <div class="ename">하류 수위·범람 <span class="mono">dam-ras</span></div>
+      <div class="edesc">방류·홍수가 하류 하천에서 수위·범람을 얼마나 일으키는지. HEC-RAS 7.0 COM · 1D 부등류 계산.</div>
+    </div>
+  </div>
+
+  <!-- 5~6. 데이터·지식 입력 -->
+  <div class="inrow">
+    <div class="ecard obs">
+      <div class="etop"><span class="erole">⑤ 관측·실측 데이터</span><span class="ecnt">16 도구</span></div>
+      <div class="ename">실측 강우·유입·수위 <span class="mono">dam-observation</span></div>
+      <div class="edesc">기상청 ASOS/AWS(강우) · 홍수통제소 HRFCO(댐·수위) · WAMIS(유량) API. 모델 입력과 검증의 실측 소스.</div>
+    </div>
+    <div class="ecard kn">
+      <div class="etop"><span class="erole">⑥ 지식·규정</span><span class="ecnt">9 도구</span></div>
+      <div class="ename">표준지침·규정 검색 <span class="mono">dam-knowledge</span></div>
+      <div class="edesc">홍수량산정 표준지침 · 댐관리규정 등 "언제 무슨 룰·기준"을 청크 검색. 운영 판단의 근거 제공.</div>
+    </div>
+  </div>
+
+  <footer>
+    <span class="ren"><span class="old">작전 1/2/3</span> → <span class="new">영역</span> · <span class="old">무기</span> → <span class="new">도구</span> · 영문 함수명은 실제 호출명(보조 표기)</span><br>
+    dam-operations · 2026-06 · https://eum-jium.github.io/dam-operations-map
+  </footer>
+
+</div>
+</body>
+</html>
