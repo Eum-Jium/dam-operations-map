@@ -75,9 +75,9 @@ function renderDamTable(dams){
     var chips=g[1].map(function(d){
       var dot=DROUGHT15.indexOf(d.n)>=0?'<span style="color:#0ea5e9">●</span> ':'';
       var org=d.o&&d.o!=='null'?d.o.replace('한국수자원공사','K-water').replace('한국수력원자력','한수원').replace('한국농어촌공사','농어촌'):'-';
-      return '<span class="tag" title="'+org+'">'+dot+d.n+' <span style="color:#94a3b8;font-family:Consolas,monospace;font-size:10px">'+d.c+'</span></span>';
+      return '<span class="tag" title="'+org+'">'+dot+esc(d.n)+' <span style="color:#94a3b8;font-family:Consolas,monospace;font-size:10px">'+esc(d.c)+'</span></span>';
     }).join('');
-    return '<div style="margin-bottom:9px"><div style="font-size:11px;font-weight:800;color:#475569;margin-bottom:4px">'+g[0]+' <span style="color:#cbd5e1">'+g[1].length+'</span></div>'+chips+'</div>';
+    return '<div style="margin-bottom:9px"><div style="font-size:11px;font-weight:800;color:#475569;margin-bottom:4px">'+esc(g[0])+' <span style="color:#cbd5e1">'+g[1].length+'</span></div>'+chips+'</div>';
   }).join('');
   return '<div class="card">'+body+'<div style="font-size:11px;color:#94a3b8;border-top:1px solid #f1f5f9;padding-top:7px;margin-top:3px"><span style="color:#0ea5e9">●</span> 이수 가뭄곡선 등록 댐 · 코드 = HRFCO dmobscd</div></div>';
 }
@@ -90,26 +90,10 @@ function renderResvList(names){
     else cat['댐·저수지'].push(n);
   });
   var body=Object.keys(cat).filter(function(k){return cat[k].length}).map(function(k){
-    var chips=cat[k].map(function(n){return '<span class="tag">'+n+'</span>';}).join('');
+    var chips=cat[k].map(function(n){return '<span class="tag">'+esc(n)+'</span>';}).join('');
     return '<div style="margin-bottom:9px"><div style="font-size:11px;font-weight:800;color:#475569;margin-bottom:4px">'+k+' <span style="color:#cbd5e1">'+cat[k].length+'</span></div>'+chips+'</div>';
   }).join('');
   return '<div class="card">'+body+'<div style="font-size:11px;color:#94a3b8;border-top:1px solid #f1f5f9;padding-top:7px;margin-top:3px">저수지 시뮬레이터 등록 시설 — 제원 CSV 기준</div></div>';
-}
-function renderResult(id){
-  if(typeof STATION_SETS!=='undefined'&&STATION_SETS[id])return row('관측소 지도',renderKoreaMap(STATION_SETS[id]));
-  if(id==='list_hrfco_dams'||id==='list_kwater_dams')return row('조회 결과 — 전국 '+DAMS50.length+' 댐',renderDamTable(DAMS50));
-  if(id==='list_dams')return row('조회 결과 — '+RESV61.length+' 시설',renderResvList(RESV61));
-  return '';
-}
-
-function renderKoreaMap(st){
-  var prov=KORGEO.paths.map(function(d){return '<path d="'+d+'" fill="#e8edf3" stroke="#cbd5e1" stroke-width="0.5"/>';}).join('');
-  var dots='',leg='';
-  st.forEach(function(s){var xy=kproj(s.lon,s.lat);
-    dots+='<circle cx="'+xy[0].toFixed(1)+'" cy="'+xy[1].toFixed(1)+'" r="6" fill="#1d4ed8" fill-opacity="0.85" stroke="#fff" stroke-width="1.3"/>';
-    leg+='<span style="display:inline-flex;align-items:center;gap:5px;margin:0 12px 7px 0;font-size:12.5px"><span style="width:11px;height:11px;border-radius:50%;background:#1d4ed8;display:inline-block"></span>'+s.n+' <span style="color:#94a3b8;font-family:Consolas,monospace;font-size:10px">'+s.id+'</span></span>';
-  });
-  return '<div class="card"><div style="text-align:center"><svg viewBox="'+KORGEO.viewBox+'" style="width:100%;max-width:400px;height:auto" role="img" aria-label="대한민국 ASOS 관측소 지도">'+prov+dots+'</svg></div><div style="margin-top:10px;border-top:1px solid #f1f5f9;padding-top:10px">'+leg+'</div><div style="font-size:11px;color:#94a3b8;margin-top:4px">현재 '+st.length+'개소 — 합천댐 유역 주변 (region 인자와 무관하게 고정 반환)</div></div>';
 }
 function buildNav(filter=''){
   const f=filter.toLowerCase();let h='';
@@ -184,21 +168,21 @@ window.renderKoreaMap=function(st,note){
   var dots='',leg='';
   st.forEach(function(s){var xy=kproj(s.lon,s.lat);
     dots+='<circle cx="'+xy[0].toFixed(1)+'" cy="'+xy[1].toFixed(1)+'" r="6" fill="#1d4ed8" fill-opacity="0.82" stroke="#fff" stroke-width="1.2"/>';
-    leg+='<span style="display:inline-flex;align-items:center;gap:5px;margin:0 11px 6px 0;font-size:12px"><span style="width:10px;height:10px;border-radius:50%;background:#1d4ed8;display:inline-block"></span>'+s.n+' <span style="color:#94a3b8;font-family:Consolas,monospace;font-size:10px">'+s.id+'</span></span>';
+    leg+='<span style="display:inline-flex;align-items:center;gap:5px;margin:0 11px 6px 0;font-size:12px"><span style="width:10px;height:10px;border-radius:50%;background:#1d4ed8;display:inline-block"></span>'+esc(s.n)+' <span style="color:#94a3b8;font-family:Consolas,monospace;font-size:10px">'+esc(s.id)+'</span></span>';
   });
   return '<div class="card"><div style="text-align:center"><svg viewBox="'+KORGEO.viewBox+'" style="width:100%;max-width:400px;height:auto" role="img" aria-label="대한민국 관측소 지도">'+prov+dots+'</svg></div><div style="margin-top:10px;border-top:1px solid #f1f5f9;padding-top:10px">'+leg+'</div><div style="font-size:11px;color:#94a3b8;margin-top:4px">'+(note||('현재 '+st.length+'개소'))+'</div></div>';
 };
 window.renderRegs=function(){
-  var rows=REGS.map(function(r){return '<tr><td>'+r.n+'</td><td style="text-align:right;font-family:Consolas,monospace;color:#1d4ed8">'+r.a+'</td></tr>';}).join('');
+  var rows=REGS.map(function(r){return '<tr><td>'+esc(r.n)+'</td><td style="text-align:right;font-family:Consolas,monospace;color:#1d4ed8">'+r.a+'</td></tr>';}).join('');
   return '<div class="card" style="padding:0;overflow:hidden"><table class="lay"><thead><tr><th>규정명</th><th style="text-align:right">조항 수</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 };
 window.renderRules=function(){
-  var body=RULES.map(function(r){return '<div style="padding:9px 0;border-bottom:1px solid #f1f5f9"><div style="font-family:Consolas,monospace;font-size:12px;color:#1d4ed8;font-weight:700">'+r.n+'</div><div style="font-size:12.5px;color:#334155;margin:3px 0">'+r.d+'</div><div style="font-size:11px;color:#94a3b8">params: '+r.p+'</div></div>';}).join('');
+  var body=RULES.map(function(r){return '<div style="padding:9px 0;border-bottom:1px solid #f1f5f9"><div style="font-family:Consolas,monospace;font-size:12px;color:#1d4ed8;font-weight:700">'+esc(r.n)+'</div><div style="font-size:12.5px;color:#334155;margin:3px 0">'+esc(r.d)+'</div><div style="font-size:11px;color:#94a3b8">params: '+esc(r.p)+'</div></div>';}).join('');
   return '<div class="card">'+body+'</div>';
 };
 window.renderKnow=function(){
-  var chips=KNOW.shown.map(function(s){return '<span class="tag" title="'+s.c+'">'+s.n+'</span>';}).join('');
-  return '<div class="card"><div style="font-size:12px;color:#64748b;margin-bottom:7px">'+KNOW.basin+' 유역 <b style="color:#1d4ed8">'+KNOW.total+'</b>개소 중 예시 '+KNOW.shown.length+'개 (basin_name·source 로 필터)</div>'+chips+'</div>';
+  var chips=KNOW.shown.map(function(s){return '<span class="tag" title="'+esc(s.c)+'">'+esc(s.n)+'</span>';}).join('');
+  return '<div class="card"><div style="font-size:12px;color:#64748b;margin-bottom:7px">'+esc(KNOW.basin)+' 유역 <b style="color:#1d4ed8">'+KNOW.total+'</b>개소 중 예시 '+KNOW.shown.length+'개 (basin_name·source 로 필터)</div>'+chips+'</div>';
 };
 window.renderDroughtChart=function(){
   var W=580,H=260,L=44,R=14,T=14,B=34,iw=W-L-R,ih=H-T-B;
